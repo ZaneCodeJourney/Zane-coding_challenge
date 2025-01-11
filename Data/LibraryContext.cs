@@ -12,6 +12,7 @@ namespace LibraryManagementAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Initialize the database using seed data
             modelBuilder.Entity<Author>().HasData(SeedData.Authors);
             modelBuilder.Entity<Book>().HasData(SeedData.Books);
         }
