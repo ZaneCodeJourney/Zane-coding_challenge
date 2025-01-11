@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel with a different port
+// Configure Kestrel to explicitly use port 5001 for HTTPS
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5051, listenOptions => listenOptions.UseHttps()); // HTTPS
+    options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps());
 });
 
 // Configure InMemoryDatabase
@@ -32,16 +32,14 @@ builder.Services.AddCors(options =>
         "AllowAll",
         policy =>
         {
-            policy
-                .AllowAnyOrigin() // Allow any origin
-                .AllowAnyMethod() // Allow any HTTP method
-                .AllowAnyHeader(); // Allow any header
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
         }
     );
 });
 
 var app = builder.Build();
 
+// Enable Swagger in development mode
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -50,6 +48,9 @@ if (app.Environment.IsDevelopment())
 
 // Enable CORS
 app.UseCors("AllowAll");
+
+// Enable HTTPS redirection
+app.UseHttpsRedirection();
 
 // Configure authorization (no complex authentication logic required here)
 app.UseAuthorization();
