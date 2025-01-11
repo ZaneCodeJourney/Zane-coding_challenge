@@ -12,12 +12,19 @@ I started the project by creating the `Book` and `Author` models with proper val
 
 - **In-Memory Database**:
   Used for storing data to avoid external setup. It's simple to use and great for testing, though the data resets on every run.
+
 - **Pagination and Search**:
   The `GET /api/books` endpoint includes pagination, and a `/api/books/search` endpoint allows filtering by title. These features improve performance and usability for larger datasets.
+
 - **CORS Configuration**:
   Configured to allow all origins, methods, and headers. This makes development and testing easier but is not ideal for production security.
+
 - **Swagger Integration**:
   Swagger is used for automatic API documentation. It simplifies testing and provides an easy way to explore the API endpoints.
+
+- **Error Handling**
+
+  I implemented error handling in both `BooksController` and `AuthorsController` to ensure invalid inputs and non-existent resources are handled gracefully. For example, I added checks for invalid IDs, pagination parameters, and duplicate entries, returning appropriate responses like `BadRequest`, `NotFound`, or `Conflict`. This improves the application's robustness and provides meaningful feedback to users.
 
 ## Prerequisites
 

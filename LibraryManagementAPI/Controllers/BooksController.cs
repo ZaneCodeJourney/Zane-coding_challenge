@@ -25,7 +25,7 @@ namespace LibraryManagementAPI.Controllers
         {
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be greater than 0.");
+                return BadRequest(new { Message = "Page and pageSize must be greater than 0." });
             }
 
             var totalBooks = await _context.Books.CountAsync();
@@ -58,12 +58,13 @@ namespace LibraryManagementAPI.Controllers
             var book = await _context
                 .Books.Include(b => b.Author)
                 .FirstOrDefaultAsync(b => b.Id == id);
+
             if (book == null)
             {
-                return NotFound();
+                return NotFound(new { Message = $"Book with ID {id} not found." });
             }
 
-            return book;
+            return Ok(book);
         }
 
         // POST: api/Books
@@ -72,7 +73,13 @@ namespace LibraryManagementAPI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(ModelState); // Return validation errors
+            }
+
+            // Check for duplicate ISBN
+            if (_context.Books.Any(b => b.ISBN == book.ISBN))
+            {
+                return Conflict(new { Message = "A book with the same ISBN already exists." });
             }
 
             _context.Books.Add(book);
@@ -87,10 +94,26 @@ namespace LibraryManagementAPI.Controllers
         {
             if (id != book.Id)
             {
-                return BadRequest();
+                return BadRequest(
+                    new { Message = "The ID in the URL does not match the ID in the body." }
+                );
             }
 
-            _context.Entry(book).State = EntityState.Modified;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Return validation errors
+            }
+
+            var existingBook = await _context.Books.FindAsync(id);
+            if (existingBook == null)
+            {
+                return NotFound(new { Message = $"Book with ID {id} not found." });
+            }
+
+            existingBook.Title = book.Title;
+            existingBook.ISBN = book.ISBN;
+            existingBook.PublishedYear = book.PublishedYear;
+            existingBook.AuthorId = book.AuthorId;
 
             try
             {
@@ -98,11 +121,9 @@ namespace LibraryManagementAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Books.Any(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                throw;
+                return Conflict(
+                    new { Message = "A concurrency issue occurred while updating the book." }
+                );
             }
 
             return NoContent();
@@ -115,7 +136,7 @@ namespace LibraryManagementAPI.Controllers
             var book = await _context.Books.FindAsync(id);
             if (book == null)
             {
-                return NotFound();
+                return NotFound(new { Message = $"Book with ID {id} not found." });
             }
 
             _context.Books.Remove(book);
@@ -130,7 +151,7 @@ namespace LibraryManagementAPI.Controllers
         {
             if (string.IsNullOrWhiteSpace(title))
             {
-                return BadRequest("Title query parameter is required.");
+                return BadRequest(new { Message = "The title query parameter is required." });
             }
 
             var books = await _context
@@ -138,9 +159,11 @@ namespace LibraryManagementAPI.Controllers
                 .Where(b => b.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
                 .ToListAsync();
 
-            if (books.Count == 0)
+            if (!books.Any())
             {
-                return NotFound($"No books found with title containing '{title}'.");
+                return NotFound(
+                    new { Message = $"No books found with title containing '{title}'." }
+                );
             }
 
             return Ok(books);
