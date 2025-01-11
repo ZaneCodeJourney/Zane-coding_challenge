@@ -3,7 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure In-Memory database and context
+// Configure Kestrel with a different port
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5051, listenOptions => listenOptions.UseHttps()); // HTTPS
+});
+
 builder.Services.AddDbContext<LibraryContext>(options => options.UseInMemoryDatabase("LibraryDb"));
 
 // Register controller services
@@ -21,7 +26,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Enable Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
