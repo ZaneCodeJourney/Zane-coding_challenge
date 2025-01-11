@@ -1,0 +1,25 @@
+# Ignore build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.ntvs_analysis.dat
+*.vs
+.vscode/
+.vsconfig
+
+# Logs
+*.log
+
+# IDE-specific files
+.idea/
+*.sln.docstates
+
+# Test-specific files
+TestResults/
+.coverage
+coverage.*
+*.trx
