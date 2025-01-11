@@ -23,7 +23,7 @@ namespace LibraryManagementAPI.Controllers
             return await _context.Books.Include(b => b.Author).ToListAsync();
         }
 
-        // GET: api/Books/5
+        // GET: api/Books/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
@@ -53,7 +53,7 @@ namespace LibraryManagementAPI.Controllers
             return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
         }
 
-        // PUT: api/Books/5
+        // PUT: api/Books/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
@@ -80,7 +80,7 @@ namespace LibraryManagementAPI.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Books/5
+        // DELETE: api/Books/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
@@ -94,6 +94,28 @@ namespace LibraryManagementAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // GET: /api/books/search?title=xyz
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Book>>> SearchBooks([FromQuery] string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return BadRequest("Title query parameter is required.");
+            }
+
+            var books = await _context
+                .Books.Include(b => b.Author)
+                .Where(b => b.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
+                .ToListAsync();
+
+            if (books.Count == 0)
+            {
+                return NotFound($"No books found with title containing '{title}'.");
+            }
+
+            return Ok(books);
         }
     }
 }
