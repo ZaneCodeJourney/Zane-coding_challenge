@@ -18,9 +18,37 @@ namespace LibraryManagementAPI.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10
+        )
         {
-            return await _context.Books.Include(b => b.Author).ToListAsync();
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be greater than 0.");
+            }
+
+            var totalBooks = await _context.Books.CountAsync();
+            var books = await _context
+                .Books.Include(b => b.Author)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var paginationMetadata = new
+            {
+                TotalCount = totalBooks,
+                PageSize = pageSize,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalBooks / (double)pageSize)
+            };
+
+            Response.Headers.Add(
+                "X-Pagination",
+                System.Text.Json.JsonSerializer.Serialize(paginationMetadata)
+            );
+
+            return Ok(books);
         }
 
         // GET: api/Books/{id}
