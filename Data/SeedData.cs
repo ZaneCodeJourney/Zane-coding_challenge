@@ -4,8 +4,8 @@ namespace LibraryManagementAPI.Data
 {
     public static class SeedData
     {
-        public static readonly List<Author> Authors = new List<Author>
-        {
+        public static readonly List<Author> Authors =
+        [
             new Author
             {
                 Id = 1,
@@ -18,10 +18,10 @@ namespace LibraryManagementAPI.Data
                 Name = "J.K. Rowling",
                 DateOfBirth = new DateTime(1965, 7, 31)
             }
-        };
+        ];
 
-        public static readonly List<Book> Books = new List<Book>
-        {
+        public static readonly List<Book> Books =
+        [
             new Book
             {
                 Id = 1,
@@ -38,7 +38,7 @@ namespace LibraryManagementAPI.Data
                 PublishedYear = 1997,
                 AuthorId = 2
             }
-        };
+        ];
 
         public static void Initialize(IServiceProvider serviceProvider)
         {
