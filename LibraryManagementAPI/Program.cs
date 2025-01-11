@@ -9,6 +9,7 @@ builder.WebHost.ConfigureKestrel(options =>
     options.ListenLocalhost(5051, listenOptions => listenOptions.UseHttps()); // HTTPS
 });
 
+// Configure InMemoryDatabase
 builder.Services.AddDbContext<LibraryContext>(options => options.UseInMemoryDatabase("LibraryDb"));
 
 // Register controller services
@@ -24,6 +25,21 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowAll",
+        policy =>
+        {
+            policy
+                .AllowAnyOrigin() // Allow any origin
+                .AllowAnyMethod() // Allow any HTTP method
+                .AllowAnyHeader(); // Allow any header
+        }
+    );
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -31,6 +47,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Library API v1"));
 }
+
+// Enable CORS
+app.UseCors("AllowAll");
 
 // Configure authorization (no complex authentication logic required here)
 app.UseAuthorization();
