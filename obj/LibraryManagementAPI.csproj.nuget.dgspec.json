@@ -42,6 +42,10 @@
               "target": "Package",
               "version": "[7.0.0, )"
             },
+            "MSTest.TestAdapter": {
+              "target": "Package",
+              "version": "[3.7.0, )"
+            },
             "MSTest.TestFramework": {
               "target": "Package",
               "version": "[3.7.0, )"
